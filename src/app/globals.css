@@ -103,6 +103,7 @@ a {
 
 /* Hero Buttons */
 .btn-hero {
+  position: relative;
   background: transparent;
   color: var(--accent);
   border: 2px solid var(--accent-light);
@@ -116,14 +117,34 @@ a {
   transition: all 0.3s ease;
   display: inline-block;
   outline: none;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.btn-hero::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  /* Cover the border */
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  border-radius: 100px;
 }
 
 .btn-hero:hover {
-  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
   color: #fff;
   border-color: transparent;
   transform: translateY(-2px);
   box-shadow: 0 4px 15px var(--shadow);
+}
+
+.btn-hero:hover::before {
+  opacity: 1;
 }
 
 .btn-hero:active {
