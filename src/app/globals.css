@@ -35,10 +35,7 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-h1,
-h2,
-h3,
-h4 {
+h1, h2, h3, h4 {
   font-family: 'Playfair Display', serif;
   line-height: 1.25;
 }
@@ -53,11 +50,9 @@ a {
 ::-webkit-scrollbar {
   width: 6px;
 }
-
 ::-webkit-scrollbar-track {
   background: var(--cream-dark);
 }
-
 ::-webkit-scrollbar-thumb {
   background: var(--accent-light);
   border-radius: 3px;
@@ -74,24 +69,12 @@ a {
   font-family: 'Playfair Display', serif !important;
 }
 
-@layer utilities {
-  .container-custom {
-    max-width: 1024px;
-    margin-left: auto;
-    margin-right: auto;
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
-  }
-}
-
-
 /* Fade-in animation */
 @keyframes fadeUp {
   from {
     opacity: 0;
     transform: translateY(20px);
   }
-
   to {
     opacity: 1;
     transform: translateY(0);
@@ -103,11 +86,6 @@ a {
 }
 
 @keyframes shimmer {
-  0% {
-    background-position: -200% 0;
-  }
-
-  100% {
-    background-position: 200% 0;
-  }
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
 }

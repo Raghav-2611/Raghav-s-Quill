@@ -13,61 +13,133 @@ export default async function Home() {
     .limit(4)
 
   return (
-    <div className="min-h-screen bg-[var(--cream)]">
+    <div>
       <Navbar />
 
-      <main>
-        {/* Hero */}
-        <section className="max-w-3xl mx-auto px-6 pt-16 pb-12 md:pt-24 md:pb-16 text-center animate-fade-up">
-          <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl font-bold text-[var(--ink)] leading-[1.1] tracking-tight mb-6">
-            Reed of Thoughts
-          </h1>
+      {/* Hero */}
+      <section
+        style={{
+          maxWidth: "800px",
+          margin: "0 auto",
+          padding: "6rem 2rem 4rem",
+          textAlign: "center",
+        }}
+      >
+        <h1
+          style={{
+            fontFamily: "'Playfair Display', serif",
+            fontSize: "clamp(2.5rem, 6vw, 4rem)",
+            fontWeight: 700,
+            color: "var(--ink)",
+            lineHeight: 1.15,
+            letterSpacing: "-0.02em",
+            marginBottom: "1.5rem",
+          }}
+        >
+          Reed of Thoughts
+          <br />
+        </h1>
 
-          <p className="text-base sm:text-lg md:text-xl text-[var(--ink-muted)] max-w-md mx-auto mb-10 leading-relaxed font-light">
-            Brewing Words like how I imagine them
-          </p>
+        <p
+          style={{
+            fontSize: "1.1rem",
+            color: "var(--ink-muted)",
+            maxWidth: "480px",
+            margin: "0 auto 2.5rem",
+            lineHeight: 1.7,
+          }}
+        >
+          Brewing Words like how I imagine them
+        </p>
 
-          <div className="flex flex-wrap items-center justify-center gap-4">
-            <Link href="/poems">
-              <button className="px-8 py-3 rounded-full bg-linear-to-br from-[var(--accent)] to-[var(--accent-light)] text-white font-semibold text-sm tracking-wide shadow-lg shadow-[var(--shadow)] hover:opacity-90 transition-opacity active:scale-95">
-                Read Poems
-              </button>
-            </Link>
-            <Link href="/stories">
-              <button className="px-8 py-3 rounded-full border-2 border-[var(--accent-light)] text-[var(--accent)] font-semibold text-sm tracking-wide hover:bg-[var(--accent-pale)] transition-colors active:scale-95">
-                Read Stories
-              </button>
-            </Link>
+        <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
+          <Link href="/poems">
+            <button
+              style={{
+                background: "linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%)",
+                color: "#fff",
+                border: "none",
+                padding: "0.8rem 2rem",
+                borderRadius: "100px",
+                fontSize: "0.9rem",
+                fontWeight: 600,
+                cursor: "pointer",
+                fontFamily: "Inter, sans-serif",
+                letterSpacing: "0.02em",
+                transition: "opacity 0.2s",
+              }}
+            >
+              Read Poems
+            </button>
+          </Link>
+          <Link href="/stories">
+            <button
+              style={{
+                background: "transparent",
+                color: "var(--accent)",
+                border: "2px solid var(--accent-light)",
+                padding: "0.8rem 2rem",
+                borderRadius: "100px",
+                fontSize: "0.9rem",
+                fontWeight: 600,
+                cursor: "pointer",
+                fontFamily: "Inter, sans-serif",
+                letterSpacing: "0.02em",
+                transition: "all 0.2s",
+              }}
+            >
+              Read Stories
+            </button>
+          </Link>
+        </div>
+      </section>
+
+      {/* Divider */}
+      <div
+        style={{
+          maxWidth: "800px",
+          margin: "0 auto",
+          padding: "0 2rem",
+          display: "flex",
+          alignItems: "center",
+          gap: "1rem",
+        }}
+      >
+        <div style={{ flex: 1, height: "1px", background: "var(--border)" }} />
+        <div style={{ flex: 1, height: "1px", background: "var(--border)" }} />
+      </div>
+
+      {/* Recent Posts */}
+      {recentPosts && recentPosts.length > 0 && (
+        <section
+          style={{
+            maxWidth: "1024px",
+            margin: "3rem auto 0",
+            padding: "0 2rem",
+          }}
+        >
+          <h2
+            style={{
+              fontFamily: "'Playfair Display', serif",
+              fontSize: "1.6rem",
+              fontWeight: 600,
+              color: "var(--ink)",
+              marginBottom: "1.5rem",
+            }}
+          >
+            Recent Posts
+          </h2>
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
+            gap: "1.5rem"
+          }}>
+            {recentPosts.map((post: { id: string; title: string; content: string; type: string; created_at?: string }) => (
+              <PostCard key={post.id} post={post} />
+            ))}
           </div>
         </section>
-
-        {/* Divider */}
-        <div className="max-w-[800px] mx-auto px-8 flex items-center gap-4 opacity-50">
-          <div className="flex-1 h-px bg-[var(--border)]" />
-          <div className="w-1.5 h-1.5 rounded-full bg-[var(--accent-light)]" />
-          <div className="flex-1 h-px bg-[var(--border)]" />
-        </div>
-
-        {/* Recent Posts */}
-        {recentPosts && recentPosts.length > 0 && (
-          <section className="container-custom py-12 md:py-16">
-            <div className="flex items-center justify-between mb-8">
-              <h2 className="font-serif text-2xl md:text-3xl font-semibold text-[var(--ink)]">
-                Recent Posts
-              </h2>
-              <Link href="/poems" className="text-sm font-medium text-[var(--accent)] hover:underline">
-                View All →
-              </Link>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 md:gap-8">
-              {recentPosts.map((post: { id: string; title: string; content: string; type: string; created_at?: string }) => (
-                <PostCard key={post.id} post={post} />
-              ))}
-            </div>
-          </section>
-        )}
-      </main>
+      )}
     </div>
   )
 }

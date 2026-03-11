@@ -25,39 +25,72 @@ export default async function Post({
   const isPoem = data.type === "poem"
 
   return (
-    <div className="min-h-screen bg-[var(--cream)]">
+    <div>
       <Navbar />
 
-      <article className="max-w-2xl mx-auto px-6 py-12 md:py-20">
+      <article style={{ maxWidth: "700px", margin: "0 auto", padding: "3rem 2rem 6rem" }}>
+
         {/* Back link */}
         <Link
           href={isPoem ? "/poems" : "/stories"}
-          className="inline-flex items-center gap-2 text-sm text-[var(--ink-muted)] hover:text-[var(--accent)] transition-colors mb-12 group"
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "0.4rem",
+            fontSize: "0.85rem",
+            color: "var(--ink-muted)",
+            fontFamily: "Inter, sans-serif",
+            marginBottom: "2rem",
+            transition: "color 0.2s",
+          }}
         >
-          <span className="transition-transform group-hover:-translate-x-1">←</span>
-          Back to {isPoem ? "Poems" : "Stories"}
+          ← Back to {isPoem ? "Poems" : "Stories"}
         </Link>
 
         {/* Type badge */}
-        <div className="mb-6">
+        <div style={{ marginBottom: "1rem" }}>
           <span
-            className={`inline-block text-[10px] md:text-[11px] font-semibold tracking-widest uppercase px-3 py-1 rounded-full ${isPoem
-                ? "bg-[var(--accent-pale)] text-[var(--accent)]"
-                : "bg-slate-100 text-slate-500"
-              }`}
+            style={{
+              display: "inline-block",
+              fontSize: "0.7rem",
+              fontWeight: 600,
+              letterSpacing: "0.1em",
+              textTransform: "uppercase",
+              padding: "0.25rem 0.75rem",
+              borderRadius: "100px",
+              background: isPoem ? "var(--accent-pale)" : "#eef2f5",
+              color: isPoem ? "var(--accent)" : "#5e7a8b",
+            }}
           >
             {data.type}
           </span>
         </div>
 
         {/* Title */}
-        <h1 className="font-serif text-3xl md:text-5xl font-bold text-[var(--ink)] leading-tight tracking-tight mb-4">
+        <h1
+          style={{
+            fontFamily: "'Playfair Display', serif",
+            fontSize: "clamp(2rem, 5vw, 3rem)",
+            fontWeight: 700,
+            color: "var(--ink)",
+            lineHeight: 1.2,
+            letterSpacing: "-0.02em",
+            marginBottom: "1rem",
+          }}
+        >
           {data.title}
         </h1>
 
         {/* Date if available */}
         {data.created_at && (
-          <p className="text-sm text-[var(--ink-muted)] mb-10">
+          <p
+            style={{
+              fontSize: "0.85rem",
+              color: "var(--ink-muted)",
+              marginBottom: "2.5rem",
+              fontFamily: "Inter, sans-serif",
+            }}
+          >
             {new Date(data.created_at).toLocaleDateString("en-IN", {
               year: "numeric",
               month: "long",
@@ -67,17 +100,30 @@ export default async function Post({
         )}
 
         {/* Decorative rule */}
-        <div className="w-16 h-1 bg-linear-to-r from-[var(--accent)] to-[var(--accent-light)] rounded-full mb-12" />
+        <div
+          style={{
+            width: "60px",
+            height: "3px",
+            background: "linear-gradient(90deg, var(--accent), var(--accent-light))",
+            borderRadius: "2px",
+            marginBottom: "2.5rem",
+          }}
+        />
 
         {/* Content */}
         <div
-          className={`text-[var(--ink-light)] whitespace-pre-line ${isPoem
-              ? "font-serif text-lg md:text-xl leading-[2] tracking-wide"
-              : "font-sans text-base md:text-lg leading-relaxed"
-            }`}
+          style={{
+            fontFamily: isPoem ? "'Playfair Display', serif" : "Inter, sans-serif",
+            fontSize: isPoem ? "1.15rem" : "1.05rem",
+            lineHeight: isPoem ? 2 : 1.9,
+            color: "var(--ink-light)",
+            whiteSpace: "pre-line",
+            letterSpacing: isPoem ? "0.01em" : "normal",
+          }}
         >
           {data.content}
         </div>
+
       </article>
     </div>
   )

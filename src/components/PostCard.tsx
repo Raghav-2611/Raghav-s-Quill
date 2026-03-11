@@ -22,22 +22,25 @@ export default function PostCard({ post }: { post: Post }) {
   const isLikedByMe = isLoaded ? hasLiked(post.id) : false
 
   const handleLike = async (e: React.MouseEvent) => {
-    e.preventDefault()
-    if (!isLoaded || isLiking) return
+    e.preventDefault() // prevent navigating to post page
+    if (!isLoaded || isLiking) return // Wait for load or currently adding/removing a like
 
     setIsLiking(true)
+
     const willLike = !isLikedByMe
 
+    // Optimistic update
     setLikes((prev) => willLike ? prev + 1 : Math.max(0, prev - 1))
     toggleLike(post.id)
 
+    // Send RPC call to increment or decrement likes
     const rpcName = willLike ? 'increment_likes' : 'decrement_likes'
     const { error } = await supabase.rpc(rpcName, { post_id: post.id })
 
     if (error) {
       console.error(`Failed to ${willLike ? 'like' : 'unlike'} post`, error)
-      setLikes((prev) => willLike ? prev - 1 : prev + 1)
-      toggleLike(post.id)
+      setLikes((prev) => willLike ? prev - 1 : prev + 1) // Revert on error
+      toggleLike(post.id) // Revert local state
     }
 
     setIsLiking(false)
@@ -51,54 +54,157 @@ export default function PostCard({ post }: { post: Post }) {
 
   return (
     <Link href={`/post/${post.id}`}>
-      <div className="group relative flex flex-col min-h-[400px] md:min-h-[450px] bg-white border border-[var(--border)] rounded-2xl p-6 md:p-8 cursor-pointer transition-all duration-300 shadow-sm hover:-translate-y-1 hover:shadow-xl hover:border-[var(--accent-light)] overflow-hidden">
-        {/* Accent sidebar */}
+      <div
+        style={{
+          background: "#fff",
+          border: "1px solid var(--border)",
+          borderRadius: "16px",
+          padding: "2rem",
+          cursor: "pointer",
+          transition: "all 0.25s ease",
+          boxShadow: "0 1px 3px var(--shadow)",
+          position: "relative",
+          overflow: "hidden",
+          minHeight: "450px",
+          display: "flex",
+          flexDirection: "column",
+        }}
+        onMouseEnter={(e) => {
+          const el = e.currentTarget
+          el.style.transform = "translateY(-3px)"
+          el.style.boxShadow = "0 8px 30px var(--shadow)"
+          el.style.borderColor = "var(--accent-light)"
+        }}
+        onMouseLeave={(e) => {
+          const el = e.currentTarget
+          el.style.transform = "translateY(0)"
+          el.style.boxShadow = "0 1px 3px var(--shadow)"
+          el.style.borderColor = "var(--border)"
+        }}
+      >
+        {/* Accent top bar */}
         <div
-          className={`absolute top-0 left-0 w-1 h-full rounded-l-2xl ${isPoem
-              ? "bg-linear-to-b from-[var(--accent)] to-[var(--accent-light)]"
-              : "bg-linear-to-b from-[#5e7a8b] to-[#8baab8]"
-            }`}
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "3px",
+            height: "100%",
+            background: isPoem
+              ? "linear-gradient(180deg, var(--accent), var(--accent-light))"
+              : "linear-gradient(180deg, #5e7a8b, #8baab8)",
+            borderRadius: "3px 0 0 3px",
+          }}
         />
 
         {/* Type badge */}
-        <div className="mb-4">
+        <div style={{ marginBottom: "0.75rem" }}>
           <span
-            className={`inline-block text-[10px] md:text-[11px] font-semibold tracking-widest uppercase px-2.5 py-1 rounded-full ${isPoem
-                ? "bg-[var(--accent-pale)] text-[var(--accent)]"
-                : "bg-slate-100 text-slate-500"
-              }`}
+            style={{
+              display: "inline-block",
+              fontSize: "0.7rem",
+              fontWeight: 600,
+              letterSpacing: "0.1em",
+              textTransform: "uppercase",
+              padding: "0.2rem 0.6rem",
+              borderRadius: "100px",
+              background: isPoem ? "var(--accent-pale)" : "#eef2f5",
+              color: isPoem ? "var(--accent)" : "#5e7a8b",
+            }}
           >
             {post.type}
           </span>
         </div>
 
         {/* Main Content Area */}
-        <div className="flex-1 relative mb-6">
-          <h2 className="font-serif text-xl md:text-2xl font-semibold text-[var(--ink)] mb-3 leading-tight">
+        <div style={{ flex: 1, position: "relative", marginBottom: "1rem" }}>
+          {/* Title */}
+          <h2
+            style={{
+              fontFamily: "'Playfair Display', serif",
+              fontSize: "1.3rem",
+              fontWeight: 600,
+              color: "var(--ink)",
+              marginBottom: "0.6rem",
+              lineHeight: 1.3,
+            }}
+          >
             {post.title}
           </h2>
 
-          <div className="relative overflow-hidden max-h-[250px] md:max-h-[300px]">
-            <p className={`text-sm md:text-base text-[var(--ink-muted)] leading-relaxed ${isPoem ? "italic" : "normal"}`}>
+          {/* Preview Container with Fade Effect */}
+          <div style={{ position: "relative", overflow: "hidden", maxHeight: "300px" }}>
+            <p
+              style={{
+                fontSize: "0.9rem",
+                color: "var(--ink-muted)",
+                lineHeight: 1.6,
+                fontStyle: isPoem ? "italic" : "normal",
+                margin: 0,
+              }}
+            >
               {preview}
               {post.content && post.content.length > 600 ? "…" : ""}
             </p>
 
-            {/* Fade Overlay */}
-            <div className="absolute top-24 inset-x-0 bottom-0 bg-linear-to-b from-transparent to-white/90 pointer-events-none" />
+            {/* The Fade Overlay - Starts after ~4 lines (~95px) */}
+            <div
+              style={{
+                position: "absolute",
+                top: "95px",
+                left: 0,
+                right: 0,
+                bottom: 0,
+                background: "linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,1) 85%)",
+                pointerEvents: "none"
+              }}
+            />
           </div>
         </div>
 
-        {/* Footer */}
-        <div className="mt-auto flex justify-between items-center">
-          <p className="text-xs md:text-sm text-[var(--accent-light)] font-medium">
+        {/* Read more hint & Likes */}
+        <div
+          style={{
+            marginTop: "1.5rem",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <p
+            style={{
+              fontSize: "0.8rem",
+              color: "var(--accent-light)",
+              fontWeight: 500,
+              margin: 0,
+            }}
+          >
             Read more →
           </p>
 
           <div
             onClick={handleLike}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/5 transition-all duration-200 group/like ${isLikedByMe ? "text-red-500" : "text-[var(--ink-muted)] hover:scale-105 hover:text-red-500"
-              }`}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "0.4rem",
+              color: isLikedByMe ? "#e74c3c" : "var(--ink-muted)",
+              cursor: isLikedByMe ? "default" : "pointer",
+              transition: "transform 0.2s, color 0.2s",
+              background: "rgba(0,0,0,0.02)",
+              padding: "0.25rem 0.6rem",
+              borderRadius: "100px",
+            }}
+            onMouseEnter={(e) => {
+              if (isLikedByMe) return
+              e.currentTarget.style.transform = "scale(1.05)"
+              e.currentTarget.style.color = "#e74c3c"
+            }}
+            onMouseLeave={(e) => {
+              if (isLikedByMe) return
+              e.currentTarget.style.transform = "scale(1)"
+              e.currentTarget.style.color = "var(--ink-muted)"
+            }}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -108,11 +214,12 @@ export default function PostCard({ post }: { post: Post }) {
               fill={isLikedByMe ? "currentColor" : "none"}
               stroke="currentColor"
               strokeWidth="2"
-              className="transition-colors"
+              strokeLinecap="round"
+              strokeLinejoin="round"
             >
               <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
             </svg>
-            <span className="text-xs md:text-sm font-semibold">{likes}</span>
+            <span style={{ fontSize: "0.85rem", fontWeight: 600 }}>{likes}</span>
           </div>
         </div>
       </div>
