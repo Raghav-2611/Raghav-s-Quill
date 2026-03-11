@@ -6,7 +6,7 @@ import Navbar from "@/components/NavBar"
 
 type Status = "idle" | "loading" | "success" | "error"
 
-const ADMIN_PASSWORD = "admin123" // ← change this to your desired password
+const ADMIN_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD
 
 export default function Admin() {
     const [title, setTitle] = useState("")
