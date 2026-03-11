@@ -54,40 +54,12 @@ export default async function Home() {
 
         <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
           <Link href="/poems">
-            <button
-              style={{
-                background: "linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%)",
-                color: "#fff",
-                border: "none",
-                padding: "0.8rem 2rem",
-                borderRadius: "100px",
-                fontSize: "0.9rem",
-                fontWeight: 600,
-                cursor: "pointer",
-                fontFamily: "Inter, sans-serif",
-                letterSpacing: "0.02em",
-                transition: "opacity 0.2s",
-              }}
-            >
+            <button className="btn-hero">
               Read Poems
             </button>
           </Link>
           <Link href="/stories">
-            <button
-              style={{
-                background: "transparent",
-                color: "var(--accent)",
-                border: "2px solid var(--accent-light)",
-                padding: "0.8rem 2rem",
-                borderRadius: "100px",
-                fontSize: "0.9rem",
-                fontWeight: 600,
-                cursor: "pointer",
-                fontFamily: "Inter, sans-serif",
-                letterSpacing: "0.02em",
-                transition: "all 0.2s",
-              }}
-            >
+            <button className="btn-hero">
               Read Stories
             </button>
           </Link>

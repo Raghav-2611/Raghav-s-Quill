@@ -35,7 +35,10 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-h1, h2, h3, h4 {
+h1,
+h2,
+h3,
+h4 {
   font-family: 'Playfair Display', serif;
   line-height: 1.25;
 }
@@ -50,9 +53,11 @@ a {
 ::-webkit-scrollbar {
   width: 6px;
 }
+
 ::-webkit-scrollbar-track {
   background: var(--cream-dark);
 }
+
 ::-webkit-scrollbar-thumb {
   background: var(--accent-light);
   border-radius: 3px;
@@ -75,6 +80,7 @@ a {
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -86,6 +92,40 @@ a {
 }
 
 @keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Hero Buttons */
+.btn-hero {
+  background: transparent;
+  color: var(--accent);
+  border: 2px solid var(--accent-light);
+  padding: 0.8rem 2rem;
+  border-radius: 100px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  letter-spacing: 0.02em;
+  transition: all 0.3s ease;
+  display: inline-block;
+  outline: none;
+}
+
+.btn-hero:hover {
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+  color: #fff;
+  border-color: transparent;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px var(--shadow);
+}
+
+.btn-hero:active {
+  transform: translateY(0);
 }
