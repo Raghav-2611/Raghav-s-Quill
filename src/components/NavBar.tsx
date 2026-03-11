@@ -53,24 +53,14 @@ export default function Navbar() {
           </span>
         </Link>
 
-        {/* Nav Links */}
-        <div style={{ display: "flex", gap: "2rem", alignItems: "center" }}>
+        <div style={{ display: "flex", gap: "2.5rem", alignItems: "center" }}>
           {links.map((link) => {
             const isActive = pathname === link.href
             return (
               <Link
                 key={link.href}
                 href={link.href}
-                style={{
-                  fontFamily: "Inter, sans-serif",
-                  fontSize: "0.9rem",
-                  fontWeight: isActive ? 600 : 400,
-                  color: isActive ? "var(--accent)" : "var(--ink-light)",
-                  borderBottom: isActive ? "2px solid var(--accent)" : "2px solid transparent",
-                  paddingBottom: "2px",
-                  transition: "all 0.2s ease",
-                  letterSpacing: "0.01em",
-                }}
+                className={`nav-link ${isActive ? "nav-link-active" : ""}`}
               >
                 {link.label}
               </Link>
