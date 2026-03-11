@@ -54,34 +54,7 @@ export default function PostCard({ post }: { post: Post }) {
 
   return (
     <Link href={`/post/${post.id}`}>
-      <div
-        style={{
-          background: "#fff",
-          border: "1px solid var(--border)",
-          borderRadius: "16px",
-          padding: "2rem",
-          cursor: "pointer",
-          transition: "all 0.25s ease",
-          boxShadow: "0 1px 3px var(--shadow)",
-          position: "relative",
-          overflow: "hidden",
-          minHeight: "450px",
-          display: "flex",
-          flexDirection: "column",
-        }}
-        onMouseEnter={(e) => {
-          const el = e.currentTarget
-          el.style.transform = "translateY(-3px)"
-          el.style.boxShadow = "0 8px 30px var(--shadow)"
-          el.style.borderColor = "var(--accent-light)"
-        }}
-        onMouseLeave={(e) => {
-          const el = e.currentTarget
-          el.style.transform = "translateY(0)"
-          el.style.boxShadow = "0 1px 3px var(--shadow)"
-          el.style.borderColor = "var(--border)"
-        }}
-      >
+      <div className="post-card">
         {/* Accent top bar */}
         <div
           style={{
@@ -172,6 +145,7 @@ export default function PostCard({ post }: { post: Post }) {
           }}
         >
           <p
+            className="read-more-hint"
             style={{
               fontSize: "0.8rem",
               color: "var(--accent-light)",
@@ -197,7 +171,7 @@ export default function PostCard({ post }: { post: Post }) {
             }}
             onMouseEnter={(e) => {
               if (isLikedByMe) return
-              e.currentTarget.style.transform = "scale(1.05)"
+              e.currentTarget.style.transform = "scale(1.1)"
               e.currentTarget.style.color = "#e74c3c"
             }}
             onMouseLeave={(e) => {
@@ -223,6 +197,7 @@ export default function PostCard({ post }: { post: Post }) {
           </div>
         </div>
       </div>
+
     </Link>
   )
 }
