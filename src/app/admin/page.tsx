@@ -3,10 +3,9 @@
 import { useState, useEffect } from "react"
 import { supabase } from "@/lib/supabase"
 import Navbar from "@/components/NavBar"
+import { adminAction } from "@/app/actions/admin"
 
 type Status = "idle" | "loading" | "success" | "error"
-
-const ADMIN_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD
 
 export default function Admin() {
     const [title, setTitle] = useState("")
@@ -39,13 +38,10 @@ export default function Admin() {
 
     const handlePasswordSubmit = (e: React.FormEvent) => {
         e.preventDefault()
-        if (passwordInput === ADMIN_PASSWORD) {
-            setIsAuthenticated(true)
-            setPasswordError(false)
-        } else {
-            setPasswordError(true)
-            setPasswordInput("")
-        }
+        // We set isAuthenticated to true to show the form, 
+        // but the REAL check happens on the server when clicking save/delete
+        setIsAuthenticated(true)
+        setPasswordError(false)
     }
     // ──────────────────────────────────────────────────────────
 
@@ -56,32 +52,30 @@ export default function Admin() {
         }
 
         setStatus("loading")
-        let error;
 
-        if (editingId) {
-            const { error: updateError } = await supabase.rpc("update_post", {
-                post_id: editingId,
-                p_title: title.trim(),
-                p_content: content.trim(),
-                p_type: type
+        try {
+            await adminAction(passwordInput, "save", {
+                editingId,
+                title,
+                content,
+                type
             })
-            error = updateError
-        } else {
-            const { error: insertError } = await supabase
-                .from("posts")
-                .insert({ title: title.trim(), content: content.trim(), type })
-            error = insertError
-        }
 
-        if (error) {
-            console.error("Supabase Error Details:", error)
-            alert(`Failed to save: ${error.message || JSON.stringify(error)}`)
-            setStatus("error")
-        } else {
             setStatus("success")
             resetForm()
             fetchPosts()
             setTimeout(() => setStatus("idle"), 3000)
+        } catch (error: any) {
+            console.error("Security/Database Error:", error)
+
+            if (error.message === "Unauthorized") {
+                alert("Incorrect password. Your session has been reset.")
+                setIsAuthenticated(false)
+                setPasswordInput("")
+            } else {
+                alert(`Failed to save: ${error.message}`)
+            }
+            setStatus("error")
         }
     }
 
@@ -103,13 +97,17 @@ export default function Admin() {
     const handleDelete = async (id: string) => {
         if (!window.confirm("Are you sure you want to delete this post?")) return
 
-        const { error } = await supabase.rpc("delete_post", { post_id: id })
-        if (error) {
-            alert("Failed to delete post: " + error.message)
-        } else {
+        try {
+            await adminAction(passwordInput, "delete", { id })
             fetchPosts()
             if (editingId === id) {
                 resetForm()
+            }
+        } catch (error: any) {
+            if (error.message === "Unauthorized") {
+                alert("Incorrect password. Action blocked.")
+            } else {
+                alert("Failed to delete post: " + error.message)
             }
         }
     }
