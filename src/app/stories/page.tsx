@@ -19,86 +19,42 @@ export default async function Stories() {
   const stories = data ?? []
 
   return (
-    <div>
+    <div className="min-h-screen bg-[var(--cream)]">
       <Navbar />
 
-      <div style={{ maxWidth: "1024px", margin: "0 auto", padding: "3rem 2rem" }}>
-
+      <main className="container-custom py-12 md:py-16">
         {/* Page header */}
-        <div style={{ marginBottom: "2.5rem" }}>
-          <span
-            style={{
-              display: "inline-block",
-              fontSize: "0.7rem",
-              fontWeight: 600,
-              letterSpacing: "0.12em",
-              textTransform: "uppercase",
-              color: "#5e7a8b",
-              background: "#eef2f5",
-              padding: "0.25rem 0.75rem",
-              borderRadius: "100px",
-              marginBottom: "0.75rem",
-            }}
-          >
+        <div className="mb-10 md:mb-12">
+          <span className="inline-block text-[10px] md:text-[11px] font-semibold tracking-widest uppercase px-3 py-1 rounded-full bg-slate-100 text-slate-500 mb-4">
             Stories
           </span>
 
-          <h1
-            style={{
-              fontFamily: "'Playfair Display', serif",
-              fontSize: "2.5rem",
-              fontWeight: 700,
-              color: "var(--ink)",
-              letterSpacing: "-0.02em",
-              lineHeight: 1.2,
-            }}
-          >
+          <h1 className="font-serif text-3xl md:text-5xl font-bold text-[var(--ink)] tracking-tight leading-tight">
             Stories
           </h1>
-          <p style={{ color: "var(--ink-muted)", marginTop: "0.5rem", fontSize: "0.95rem" }}>
+          <p className="text-sm md:text-base text-[var(--ink-muted)] mt-3">
             {stories.length} {stories.length === 1 ? "story" : "stories"} written
           </p>
         </div>
 
         {/* Post list */}
         {error ? (
-          <div
-            style={{
-              padding: "2rem",
-              background: "#fff0f0",
-              borderRadius: "12px",
-              color: "#c0392b",
-              border: "1px solid #f5c6cb",
-            }}
-          >
+          <div className="p-8 bg-red-50 border border-red-200 rounded-2xl text-red-600">
             Could not load stories. Please check your Supabase configuration.
           </div>
         ) : stories.length === 0 ? (
-          <div
-            style={{
-              textAlign: "center",
-              padding: "5rem 2rem",
-              color: "var(--ink-muted)",
-            }}
-          >
-            <p style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.5rem", marginBottom: "0.5rem" }}>
-              No stories yet.
-            </p>
-            <p style={{ fontSize: "0.9rem" }}>Check back soon for new writings.</p>
+          <div className="text-center py-24 px-6 text-[var(--ink-muted)]">
+            <p className="font-serif text-2xl mb-2">No stories yet.</p>
+            <p className="text-sm">Check back soon for new writings.</p>
           </div>
         ) : (
-          <div style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
-            gap: "1.5rem"
-          }}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 md:gap-8">
             {stories.map((post: { id: string; title: string; content: string; type: string; created_at?: string }) => (
               <PostCard key={post.id} post={post} />
             ))}
           </div>
         )}
-
-      </div>
+      </main>
     </div>
   )
 }

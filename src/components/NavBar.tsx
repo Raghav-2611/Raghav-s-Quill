@@ -2,9 +2,11 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { useState } from "react"
 
 export default function Navbar() {
   const pathname = usePathname()
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
 
   const links = [
     { href: "/", label: "Home" },
@@ -13,64 +15,58 @@ export default function Navbar() {
   ]
 
   return (
-    <nav
-      style={{
-        position: "sticky",
-        top: 0,
-        zIndex: 50,
-        background: "rgba(250, 248, 244, 0.85)",
-        backdropFilter: "blur(12px)",
-        WebkitBackdropFilter: "blur(12px)",
-        borderBottom: "1px solid var(--border)",
-        padding: "0 2rem",
-      }}
-    >
-      <div
-        style={{
-          maxWidth: "1024px",
-          margin: "0 auto",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          height: "70px",
-        }}
-      >
+    <nav className="sticky top-0 z-50 bg-[rgba(250,248,244,0.85)] backdrop-blur-md border-b border-[var(--border)] px-6 md:px-8">
+      <div className="max-w-5xl mx-auto flex items-center justify-between h-[70px]">
         {/* Logo */}
-        <Link href="/">
-          <span
-            style={{
-              fontFamily: "'Playfair Display', serif",
-              fontSize: "1.5rem",
-              fontWeight: 700,
-              background: "linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              backgroundClip: "text",
-              letterSpacing: "-0.02em",
-            }}
-          >
+        <Link href="/" className="z-50">
+          <span className="font-serif text-2xl font-bold bg-linear-to-br from-[var(--accent)] to-[var(--accent-light)] bg-clip-text text-transparent tracking-tight">
             Raghav's Quill
           </span>
         </Link>
 
-        {/* Nav Links */}
-        <div style={{ display: "flex", gap: "2rem", alignItems: "center" }}>
+        {/* Desktop Nav Links */}
+        <div className="hidden md:flex gap-8 items-center">
           {links.map((link) => {
             const isActive = pathname === link.href
             return (
               <Link
                 key={link.href}
                 href={link.href}
-                style={{
-                  fontFamily: "Inter, sans-serif",
-                  fontSize: "0.9rem",
-                  fontWeight: isActive ? 600 : 400,
-                  color: isActive ? "var(--accent)" : "var(--ink-light)",
-                  borderBottom: isActive ? "2px solid var(--accent)" : "2px solid transparent",
-                  paddingBottom: "2px",
-                  transition: "all 0.2s ease",
-                  letterSpacing: "0.01em",
-                }}
+                className={`font-sans text-sm tracking-wide transition-all duration-200 border-b-2 pb-0.5 ${isActive
+                    ? "font-semibold text-[var(--accent)] border-[var(--accent)]"
+                    : "font-normal text-[var(--ink-light)] border-transparent hover:text-[var(--accent)]"
+                  }`}
+              >
+                {link.label}
+              </Link>
+            )
+          })}
+        </div>
+
+        {/* Mobile Menu Toggle */}
+        <button
+          className="md:hidden z-50 p-2 text-[var(--ink)]"
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          aria-label="Toggle menu"
+        >
+          <div className="w-6 h-5 relative flex flex-col justify-between">
+            <span className={`w-full h-0.5 bg-current transition-all duration-300 ${isMenuOpen ? "rotate-45 translate-y-2.5" : ""}`} />
+            <span className={`w-full h-0.5 bg-current transition-opacity duration-300 ${isMenuOpen ? "opacity-0" : ""}`} />
+            <span className={`w-full h-0.5 bg-current transition-all duration-300 ${isMenuOpen ? "-rotate-45 -translate-y-2.5" : ""}`} />
+          </div>
+        </button>
+
+        {/* Mobile Menu Overlay */}
+        <div className={`fixed inset-0 bg-[var(--cream)] z-40 flex flex-col items-center justify-center gap-8 transition-transform duration-500 ease-in-out md:hidden ${isMenuOpen ? "translate-y-0" : "-translate-y-full"}`}>
+          {links.map((link) => {
+            const isActive = pathname === link.href
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                onClick={() => setIsMenuOpen(false)}
+                className={`font-serif text-3xl transition-colors ${isActive ? "text-[var(--accent)]" : "text-[var(--ink)]"
+                  }`}
               >
                 {link.label}
               </Link>
