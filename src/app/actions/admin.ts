@@ -1,40 +1,72 @@
 "use server"
 
-import { supabase } from "@/lib/supabase"
+import { createClient } from "@supabase/supabase-js"
 
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD
 
-export async function adminAction(password: string, operation: "save" | "delete", data: any) {
-    // 1. Verify password on the server (Secure!)
+// Server-only Supabase admin client.
+// Uses SUPABASE_SERVICE_ROLE_KEY to bypass RLS if available,
+// otherwise falls back to the anon key.
+function getAdminClient() {
+    return createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    )
+}
+
+type ActionResult = { success: true } | { success: false; error: string }
+
+export async function adminAction(
+    password: string,
+    operation: "save" | "delete",
+    data: any
+): Promise<ActionResult> {
+    // 1. Verify password on the server
     if (password !== ADMIN_PASSWORD) {
-        throw new Error("Unauthorized")
+        return { success: false, error: "Unauthorized: Incorrect password." }
     }
 
-    // 2. Perform the operation
-    if (operation === "save") {
-        const { editingId, title, content, type } = data
+    const supabase = getAdminClient()
 
-        if (editingId) {
-            // Update via RPC
-            const { error } = await supabase.rpc("update_post", {
-                post_id: editingId,
-                p_title: title.trim(),
-                p_content: content.trim(),
-                p_type: type
-            })
-            if (error) throw error
-        } else {
-            // Insert new
+    try {
+        // 2. Perform the operation
+        if (operation === "save") {
+            const { editingId, title, content, type } = data
+
+            if (editingId) {
+                // Update existing post
+                const { error } = await supabase
+                    .from("posts")
+                    .update({ title: title.trim(), content: content.trim(), type })
+                    .eq("id", editingId)
+
+                if (error) {
+                    return { success: false, error: error.message }
+                }
+            } else {
+                // Insert new post
+                const { error } = await supabase
+                    .from("posts")
+                    .insert({ title: title.trim(), content: content.trim(), type })
+
+                if (error) {
+                    return { success: false, error: error.message }
+                }
+            }
+        } else if (operation === "delete") {
+            const { id } = data
             const { error } = await supabase
                 .from("posts")
-                .insert({ title: title.trim(), content: content.trim(), type })
-            if (error) throw error
-        }
-    } else if (operation === "delete") {
-        const { id } = data
-        const { error } = await supabase.rpc("delete_post", { post_id: id })
-        if (error) throw error
-    }
+                .delete()
+                .eq("id", id)
 
-    return { success: true }
+            if (error) {
+                return { success: false, error: error.message }
+            }
+        }
+
+        return { success: true }
+    } catch (e: any) {
+        return { success: false, error: e?.message ?? "An unexpected error occurred." }
+    }
 }

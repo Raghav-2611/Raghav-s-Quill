@@ -53,27 +53,26 @@ export default function Admin() {
 
         setStatus("loading")
 
-        try {
-            await adminAction(passwordInput, "save", {
-                editingId,
-                title,
-                content,
-                type
-            })
+        const result = await adminAction(passwordInput, "save", {
+            editingId,
+            title,
+            content,
+            type
+        })
 
+        if (result.success) {
             setStatus("success")
             resetForm()
             fetchPosts()
             setTimeout(() => setStatus("idle"), 3000)
-        } catch (error: any) {
-            console.error("Security/Database Error:", error)
-
-            if (error.message === "Unauthorized") {
+        } else {
+            console.error("Save Error:", result.error)
+            if (result.error.includes("Unauthorized")) {
                 alert("Incorrect password. Your session has been reset.")
                 setIsAuthenticated(false)
                 setPasswordInput("")
             } else {
-                alert(`Failed to save: ${error.message}`)
+                alert(`Failed to save: ${result.error}`)
             }
             setStatus("error")
         }
@@ -97,17 +96,18 @@ export default function Admin() {
     const handleDelete = async (id: string) => {
         if (!window.confirm("Are you sure you want to delete this post?")) return
 
-        try {
-            await adminAction(passwordInput, "delete", { id })
+        const result = await adminAction(passwordInput, "delete", { id })
+        if (result.success) {
             fetchPosts()
             if (editingId === id) {
                 resetForm()
             }
-        } catch (error: any) {
-            if (error.message === "Unauthorized") {
+        } else {
+            console.error("Delete Error:", result.error)
+            if (result.error.includes("Unauthorized")) {
                 alert("Incorrect password. Action blocked.")
             } else {
-                alert("Failed to delete post: " + error.message)
+                alert("Failed to delete post: " + result.error)
             }
         }
     }
