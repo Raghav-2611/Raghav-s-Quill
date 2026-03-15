@@ -2,6 +2,7 @@ import { supabase } from "@/lib/supabase"
 import Navbar from "@/components/NavBar"
 import Link from "next/link"
 import { notFound } from "next/navigation"
+import PostContent from "@/components/PostContent"
 
 export const revalidate = 0
 
@@ -111,18 +112,7 @@ export default async function Post({
         />
 
         {/* Content */}
-        <div
-          style={{
-            fontFamily: isPoem ? "'Playfair Display', serif" : "Inter, sans-serif",
-            fontSize: isPoem ? "1.15rem" : "1.05rem",
-            lineHeight: isPoem ? 2 : 1.9,
-            color: "var(--ink-light)",
-            whiteSpace: "pre-line",
-            letterSpacing: isPoem ? "0.01em" : "normal",
-          }}
-        >
-          {data.content}
-        </div>
+        <PostContent content={data.content} isPoem={isPoem} />
 
       </article>
     </div>
