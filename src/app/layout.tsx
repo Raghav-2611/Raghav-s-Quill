@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import "./globals.css"
+import IntroAnimation from "@/components/IntroAnimation"
 
 export const metadata: Metadata = {
   title: "Raghav's Quill - Feed of Thoughts",
@@ -15,6 +16,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
+        <IntroAnimation />
         <main className="min-h-screen">
           {children}
         </main>

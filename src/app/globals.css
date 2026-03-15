@@ -1,4 +1,126 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600&family=Great+Vibes&display=swap');
+
+/* ============================================================
+   INTRO ANIMATION — Raghav's Quill signature
+   ============================================================ */
+
+/* Fullscreen overlay */
+.intro-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: #faf8f4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: all;
+  transition: opacity 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+  opacity: 1;
+}
+
+.intro-overlay--out {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Centred content block */
+.intro-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Quill feather icon */
+.quill-icon {
+  width: 48px;
+  height: 64px;
+  opacity: 0;
+  animation: quillAppear 0.5s ease forwards 0.1s;
+}
+
+@keyframes quillAppear {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) rotate(-10deg);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) rotate(0deg);
+  }
+}
+
+/* All SVG paths inside the feather icon are drawn */
+.quill-path,
+.quill-nib,
+.quill-vein {
+  stroke-dasharray: 300;
+  stroke-dashoffset: 300;
+  animation: drawStroke 0.9s ease forwards 0.2s;
+}
+
+.quill-nib {
+  animation-delay: 0.85s;
+}
+
+.quill-vein {
+  animation-delay: 0.3s;
+  stroke-dasharray: 150;
+  stroke-dashoffset: 150;
+}
+
+/* ── Main signature SVG ── */
+.signature-svg {
+  width: min(680px, 90vw);
+  height: auto;
+  overflow: visible;
+}
+
+/* The <text> element: stroke-dasharray trick via JS-set custom property */
+.signature-text {
+  stroke-dasharray: 3000;
+  stroke-dashoffset: 3000;
+  animation: drawSignature 2s cubic-bezier(0.4, 0, 0.2, 1) forwards 0.6s;
+}
+
+@keyframes drawSignature {
+  0% {
+    stroke-dashoffset: 3000;
+    fill-opacity: 0;
+  }
+
+  80% {
+    stroke-dashoffset: 0;
+    fill-opacity: 0;
+  }
+
+  100% {
+    stroke-dashoffset: 0;
+    fill: #8b5e3c;
+    fill-opacity: 0.15;
+  }
+}
+
+/* ── Underline flourish ── */
+.flourish-svg {
+  width: min(380px, 75vw);
+  height: auto;
+  margin-top: -0.25rem;
+}
+
+.flourish-path {
+  stroke-dasharray: 500;
+  stroke-dashoffset: 500;
+  animation: drawStroke 0.8s ease forwards 2.3s;
+}
+
+/* Generic draw-stroke keyframe (shared) */
+@keyframes drawStroke {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
 
 @tailwind base;
 @tailwind components;
