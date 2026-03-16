@@ -53,15 +53,11 @@ export default async function Home() {
         </p>
 
         <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
-          <Link href="/poems">
-            <button className="btn-hero">
+          <Link href="/poems" className="btn-hero">
               Read Poems
-            </button>
           </Link>
-          <Link href="/stories">
-            <button className="btn-hero">
+          <Link href="/stories" className="btn-hero">
               Read Stories
-            </button>
           </Link>
         </div>
       </section>
