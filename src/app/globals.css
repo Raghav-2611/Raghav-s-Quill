@@ -428,29 +428,4 @@ h2 {
 /* Each individual line */
 .post-line {
   display: block;
-  transition:
-    transform 0.25s cubic-bezier(0.34, 1.30, 0.64, 1),
-    color 0.2s ease,
-    opacity 0.2s ease,
-    letter-spacing 0.25s ease,
-    background 0.2s ease;
-  transform-origin: left center;
-  cursor: default;
-  border-radius: 4px;
-  padding: 0 0.3rem;
-  margin: 0 -0.3rem;
-}
-
-/* Hovered line: scale up + darken + subtle background highlight */
-.post-line:hover {
-  transform: scale(1.048);
-  color: var(--ink);
-  letter-spacing: 0.025em;
-  background: rgba(139, 94, 60, 0.05);
-}
-
-/* Dim all sibling lines when one is hovered */
-.post-body:has(.post-line:hover) .post-line:not(:hover) {
-  opacity: 0.4;
-  color: var(--ink-muted);
 }
