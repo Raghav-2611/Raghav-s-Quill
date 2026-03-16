@@ -223,13 +223,13 @@ a {
   }
 }
 
-/* Sound-bar animation for TextToSpeech player */
-@keyframes soundBar {
-  from {
-    height: 3px;
+/* Waveform bar animation for TextToSpeech player */
+@keyframes waveBar {
+  0% {
+    transform: scaleY(0.4);
   }
-  to {
-    height: 14px;
+  100% {
+    transform: scaleY(1.1);
   }
 }
 

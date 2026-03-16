@@ -7,6 +7,12 @@ interface TextToSpeechProps {
   title?: string
 }
 
+// bar heights (px) — gives an organic waveform silhouette
+const BAR_HEIGHTS = [
+  10, 18, 28, 22, 34, 26, 38, 30, 42, 36, 44, 38, 40, 34, 46, 40, 44,
+  36, 38, 30, 42, 34, 28, 22, 18, 14, 20, 16, 24, 18, 26, 20, 22, 16, 12,
+]
+
 export default function TextToSpeech({ text, title }: TextToSpeechProps) {
   const [isPlaying, setIsPlaying] = useState(false)
   const [isPaused, setIsPaused] = useState(false)
@@ -17,7 +23,6 @@ export default function TextToSpeech({ text, title }: TextToSpeechProps) {
     setSupported(typeof window !== 'undefined' && 'speechSynthesis' in window)
   }, [])
 
-  // Clean up on unmount
   useEffect(() => {
     return () => {
       if (typeof window !== 'undefined' && window.speechSynthesis) {
@@ -29,7 +34,6 @@ export default function TextToSpeech({ text, title }: TextToSpeechProps) {
   const speak = useCallback(() => {
     if (!supported) return
 
-    // If we were paused, resume
     if (isPaused) {
       window.speechSynthesis.resume()
       setIsPlaying(true)
@@ -37,16 +41,14 @@ export default function TextToSpeech({ text, title }: TextToSpeechProps) {
       return
     }
 
-    // Fresh start
     window.speechSynthesis.cancel()
 
     const fullText = title ? `${title}. ${text}` : text
     const utterance = new SpeechSynthesisUtterance(fullText)
-    utterance.rate = 0.88   // slightly slower, more literary
+    utterance.rate = 0.88
     utterance.pitch = 1.0
     utterance.volume = 1.0
 
-    // Pick a pleasant voice if available
     const voices = window.speechSynthesis.getVoices()
     const preferred = voices.find(
       (v) =>
@@ -58,18 +60,9 @@ export default function TextToSpeech({ text, title }: TextToSpeechProps) {
     )
     if (preferred) utterance.voice = preferred
 
-    utterance.onstart = () => {
-      setIsPlaying(true)
-      setIsPaused(false)
-    }
-    utterance.onend = () => {
-      setIsPlaying(false)
-      setIsPaused(false)
-    }
-    utterance.onerror = () => {
-      setIsPlaying(false)
-      setIsPaused(false)
-    }
+    utterance.onstart = () => { setIsPlaying(true); setIsPaused(false) }
+    utterance.onend = () => { setIsPlaying(false); setIsPaused(false) }
+    utterance.onerror = () => { setIsPlaying(false); setIsPaused(false) }
 
     utteranceRef.current = utterance
     window.speechSynthesis.speak(utterance)
@@ -91,138 +84,115 @@ export default function TextToSpeech({ text, title }: TextToSpeechProps) {
 
   if (!supported) return null
 
+  const handlePlayPause = () => (isPlaying ? pause() : speak())
+
   return (
     <div
       style={{
         display: 'inline-flex',
         alignItems: 'center',
-        gap: '0.6rem',
+        gap: '0.9rem',
         marginBottom: '2.5rem',
-        padding: '0.55rem 1.1rem',
+        padding: '0.65rem 1.2rem 0.65rem 0.65rem',
         borderRadius: '100px',
+        background: '#fff',
         border: '1.5px solid var(--border)',
-        background: isPlaying
-          ? 'linear-gradient(135deg, var(--accent-pale), #fff)'
-          : 'rgba(255,255,255,0.7)',
-        backdropFilter: 'blur(6px)',
-        transition: 'all 0.3s ease',
         boxShadow: isPlaying
-          ? '0 4px 20px rgba(139,94,60,0.15)'
-          : '0 2px 8px rgba(0,0,0,0.04)',
+          ? '0 4px 24px rgba(139,94,60,0.18)'
+          : '0 2px 10px rgba(0,0,0,0.06)',
+        transition: 'box-shadow 0.3s ease',
+        maxWidth: '100%',
       }}
     >
-      {/* Animated sound-wave icon when playing */}
-      {isPlaying && (
-        <span
-          style={{
-            display: 'inline-flex',
-            alignItems: 'flex-end',
-            gap: '2px',
-            height: '14px',
-          }}
-        >
-          {[1, 2, 3, 4].map((i) => (
+      {/* ── Circular play / pause button ── */}
+      <button
+        onClick={handlePlayPause}
+        title={isPlaying ? 'Pause' : isPaused ? 'Resume' : 'Listen'}
+        style={{
+          flexShrink: 0,
+          width: '44px',
+          height: '44px',
+          borderRadius: '50%',
+          border: 'none',
+          background: 'linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%)',
+          color: '#fff',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          boxShadow: '0 3px 12px rgba(139,94,60,0.40)',
+          transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.transform = 'scale(1.1)'
+          e.currentTarget.style.boxShadow = '0 5px 18px rgba(139,94,60,0.55)'
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.transform = 'scale(1)'
+          e.currentTarget.style.boxShadow = '0 3px 12px rgba(139,94,60,0.40)'
+        }}
+      >
+        {isPlaying ? (
+          /* Pause icon */
+          <svg width="12" height="14" viewBox="0 0 12 14" fill="currentColor">
+            <rect x="0" y="0" width="4" height="14" rx="1.5" />
+            <rect x="8" y="0" width="4" height="14" rx="1.5" />
+          </svg>
+        ) : (
+          /* Play triangle */
+          <svg width="13" height="15" viewBox="0 0 13 15" fill="currentColor" style={{ marginLeft: '2px' }}>
+            <path d="M1.5 1.5L11.5 7.5L1.5 13.5V1.5Z" />
+          </svg>
+        )}
+      </button>
+
+      {/* ── Waveform bars ── */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '3px',
+          overflow: 'hidden',
+        }}
+      >
+        {BAR_HEIGHTS.map((h, i) => {
+          // bars fade out toward the right to mimic "unplayed" audio
+          const fadeFactor = i / BAR_HEIGHTS.length // 0 → 1
+          const opacity = isPlaying
+            ? 1                          // all vibrant while playing
+            : 1 - fadeFactor * 0.75      // idle: right side fades
+          const animated = isPlaying
+          const delay = (i % 6) * 0.12  // stagger so bars don't all move together
+
+          return (
             <span
               key={i}
               style={{
                 display: 'block',
-                width: '3px',
-                borderRadius: '2px',
+                width: '3.5px',
+                height: `${h}px`,
+                borderRadius: '3px',
                 background: 'var(--accent)',
-                animation: `soundBar 0.8s ease-in-out ${i * 0.12}s infinite alternate`,
+                opacity,
+                flexShrink: 0,
+                transformOrigin: 'center',
+                animation: animated
+                  ? `waveBar 0.7s ease-in-out ${delay}s infinite alternate`
+                  : 'none',
+                transition: 'opacity 0.4s ease',
               }}
             />
-          ))}
-        </span>
-      )}
+          )
+        })}
+      </div>
 
-      <span
-        style={{
-          fontSize: '0.78rem',
-          fontWeight: 600,
-          fontFamily: 'Inter, sans-serif',
-          letterSpacing: '0.03em',
-          color: isPlaying ? 'var(--accent)' : 'var(--ink-light)',
-          userSelect: 'none',
-        }}
-      >
-        {isPaused ? 'Paused' : isPlaying ? 'Reading…' : 'Listen'}
-      </span>
-
-      {/* Play / Resume */}
-      {!isPlaying && (
-        <button
-          onClick={speak}
-          title={isPaused ? 'Resume reading' : 'Listen to this post'}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '32px',
-            height: '32px',
-            borderRadius: '50%',
-            border: 'none',
-            background: 'var(--accent)',
-            color: '#fff',
-            cursor: 'pointer',
-            transition: 'transform 0.2s, box-shadow 0.2s',
-            boxShadow: '0 2px 8px rgba(139,94,60,0.35)',
-            flexShrink: 0,
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = 'scale(1.1)'
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = 'scale(1)'
-          }}
-        >
-          {/* Play triangle */}
-          <svg width="12" height="14" viewBox="0 0 12 14" fill="currentColor">
-            <path d="M1.5 0.5L11.5 7L1.5 13.5V0.5Z" />
-          </svg>
-        </button>
-      )}
-
-      {/* Pause */}
-      {isPlaying && (
-        <button
-          onClick={pause}
-          title="Pause"
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '32px',
-            height: '32px',
-            borderRadius: '50%',
-            border: 'none',
-            background: 'var(--accent)',
-            color: '#fff',
-            cursor: 'pointer',
-            transition: 'transform 0.2s',
-            boxShadow: '0 2px 8px rgba(139,94,60,0.35)',
-            flexShrink: 0,
-          }}
-          onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.1)' }}
-          onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)' }}
-        >
-          {/* Pause bars */}
-          <svg width="10" height="12" viewBox="0 0 10 12" fill="currentColor">
-            <rect x="0" y="0" width="3.5" height="12" rx="1.5" />
-            <rect x="6.5" y="0" width="3.5" height="12" rx="1.5" />
-          </svg>
-        </button>
-      )}
-
-      {/* Stop — only visible when playing or paused */}
+      {/* ── Stop button (only when active) ── */}
       {(isPlaying || isPaused) && (
         <button
           onClick={stop}
           title="Stop"
           style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
+            flexShrink: 0,
             width: '28px',
             height: '28px',
             borderRadius: '50%',
@@ -230,8 +200,10 @@ export default function TextToSpeech({ text, title }: TextToSpeechProps) {
             background: 'transparent',
             color: 'var(--ink-muted)',
             cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
             transition: 'all 0.2s',
-            flexShrink: 0,
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.background = '#fee2e2'
@@ -244,9 +216,8 @@ export default function TextToSpeech({ text, title }: TextToSpeechProps) {
             e.currentTarget.style.color = 'var(--ink-muted)'
           }}
         >
-          {/* Stop square */}
           <svg width="8" height="8" viewBox="0 0 8 8" fill="currentColor">
-            <rect width="8" height="8" rx="1" />
+            <rect width="8" height="8" rx="1.5" />
           </svg>
         </button>
       )}
