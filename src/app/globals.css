@@ -131,7 +131,7 @@
   --cream-dark: #f2ede4;
   --ink: #1a1a1a;
   --ink-light: #4a4a4a;
-  --ink-muted: #666666;
+  --ink-muted: #8a8a8a;
   --accent: #8b5e3c;
   --accent-light: #c4956a;
   --accent-pale: #f5ebe0;
@@ -428,18 +428,4 @@ h2 {
 /* Each individual line */
 .post-line {
   display: block;
-}
-
-/* ============================================================
-   REDUCED MOTION SUPPORT
-   ============================================================ */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
 }

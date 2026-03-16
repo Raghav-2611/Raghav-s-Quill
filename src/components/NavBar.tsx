@@ -61,7 +61,6 @@ export default function Navbar() {
                 key={link.href}
                 href={link.href}
                 className={`nav-link ${isActive ? "nav-link-active" : ""}`}
-                aria-current={isActive ? "page" : undefined}
               >
                 {link.label}
               </Link>

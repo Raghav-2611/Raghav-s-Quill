@@ -53,19 +53,8 @@ export default function PostCard({ post }: { post: Post }) {
   const isPoem = post.type === "poem"
 
   return (
-    <article className="post-card" style={{ position: "relative" }}>
-      {/* Absolute overlay link to make the whole card clickable EXCEPT buttons inside */}
-      <Link 
-        href={`/post/${post.id}`}
-        aria-label={`Read ${post.title}`}
-        style={{
-          position: "absolute",
-          inset: 0,
-          zIndex: 1
-        }}
-      />
-      
-      <div style={{ position: "relative", zIndex: 2, height: "100%", display: "flex", flexDirection: "column" }}>
+    <Link href={`/post/${post.id}`}>
+      <div className="post-card">
         {/* Accent top bar */}
         <div
           style={{
@@ -164,16 +153,14 @@ export default function PostCard({ post }: { post: Post }) {
               margin: 0,
             }}
           >
-            <span aria-hidden="true">Read more →</span>
+            Read more →
           </p>
 
-          <button
+          <div
             onClick={handleLike}
-            aria-label={isLikedByMe ? "Unlike post" : "Like post"}
             style={{
               display: "flex",
               alignItems: "center",
-              justifyContent: "center",
               gap: "0.4rem",
               color: isLikedByMe ? "#e74c3c" : "var(--ink-muted)",
               cursor: isLikedByMe ? "default" : "pointer",
@@ -181,10 +168,6 @@ export default function PostCard({ post }: { post: Post }) {
               background: "rgba(0,0,0,0.02)",
               padding: "0.25rem 0.6rem",
               borderRadius: "100px",
-              border: "none",
-              outline: "none",
-              zIndex: 3, // Sit above the absolute Link
-              position: "relative" // required for z-index to work
             }}
             onMouseEnter={(e) => {
               if (isLikedByMe) return
@@ -211,9 +194,10 @@ export default function PostCard({ post }: { post: Post }) {
               <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
             </svg>
             <span style={{ fontSize: "0.85rem", fontWeight: 600 }}>{likes}</span>
-          </button>
+          </div>
         </div>
       </div>
-    </article>
+
+    </Link>
   )
 }
