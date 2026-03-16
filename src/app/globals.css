@@ -223,6 +223,16 @@ a {
   }
 }
 
+/* Sound-bar animation for TextToSpeech player */
+@keyframes soundBar {
+  from {
+    height: 3px;
+  }
+  to {
+    height: 14px;
+  }
+}
+
 /* ============================================================
    POST CARDS — premium hover micro-interactions
    ============================================================ */

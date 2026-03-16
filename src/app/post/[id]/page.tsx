@@ -3,6 +3,7 @@ import Navbar from "@/components/NavBar"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import PostContent from "@/components/PostContent"
+import TextToSpeech from "@/components/TextToSpeech"
 
 export const revalidate = 0
 
@@ -110,6 +111,9 @@ export default async function Post({
             marginBottom: "2.5rem",
           }}
         />
+
+        {/* Listen button */}
+        <TextToSpeech text={data.content} title={data.title} />
 
         {/* Content */}
         <PostContent content={data.content} isPoem={isPoem} />
