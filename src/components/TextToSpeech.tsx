@@ -53,21 +53,19 @@ export default function TextToSpeech({ text, title }: TextToSpeechProps) {
     // Pick a pleasant voice if available
     const voices = window.speechSynthesis.getVoices()
     
-    // We want a very soft, pleasant, human-like female voice
+    // Target the highest quality, natively available female voice on each major platform
     const preferredVoices = [
-      'Microsoft Zira',        // Very clear, soft Windows voice
-      'Google UK English Female', // Soft British Google voice
-      'Samantha',              // macOS/iOS high-quality female
-      'Karen',                 // macOS/iOS Australian (often sounds pleasant)
-      'Victoria',              // macOS/iOS soft American female
-      'Tessa',                 // macOS/iOS South African female
-      'Moira',                 // macOS/iOS Irish female
-      'Google US English'      // Standard fallback
+      'Google US English',       // Best quality if using Chrome
+      'Google UK English Female',// Alternative Chrome high quality
+      'Samantha',                // Default macOS/iOS high-quality female
+      'Microsoft Zira',          // Default Windows 10/11 female
+      'Microsoft Aria Online',   // High-quality Edge female
+      'en-US-language'           // Android default fallback
     ]
 
     let selectedVoice: SpeechSynthesisVoice | undefined = undefined
 
-    // 1. Try to find an exact match for our preferred soft voices
+    // 1. Try to find the first match in our priority list
     for (const pref of preferredVoices) {
       const match = voices.find(v => v.name.includes(pref) && v.lang.startsWith('en'))
       if (match) {
@@ -76,11 +74,16 @@ export default function TextToSpeech({ text, title }: TextToSpeechProps) {
       }
     }
 
-    // 2. If no preferred voice is found, find *any* English female voice
+    // 2. If no specific match, find *any* voice explicitly labelled "female" or "woman"
     if (!selectedVoice) {
       selectedVoice = voices.find(
         (v) => v.lang.startsWith('en') && (v.name.toLowerCase().includes('female') || v.name.includes('Woman'))
       )
+    }
+
+    // 3. Last resort: just grab the first English voice we can find (so it doesn't break/use a non-English voice)
+    if (!selectedVoice) {
+      selectedVoice = voices.find(v => v.lang.startsWith('en'))
     }
 
     if (selectedVoice) {
