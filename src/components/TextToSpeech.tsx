@@ -45,20 +45,36 @@ export default function TextToSpeech({ text, title }: TextToSpeechProps) {
 
     const fullText = title ? `${title}. ${text}` : text
     const utterance = new SpeechSynthesisUtterance(fullText)
-    utterance.rate = 0.88
-    utterance.pitch = 1.0
+    // Slower rate and slightly lower pitch help electronic voices sound softer and more natural
+    utterance.rate = 0.85
+    utterance.pitch = 0.95
     utterance.volume = 1.0
 
     const voices = window.speechSynthesis.getVoices()
-    const preferred = voices.find(
-      (v) =>
-        v.lang.startsWith('en') &&
-        (v.name.includes('Samantha') ||
-          v.name.includes('Karen') ||
-          v.name.includes('Daniel') ||
-          v.name.includes('Google US English'))
+    
+    // Prioritize high-quality, soft female voices available on Apple/Windows devices
+    const preferredVoices = [
+      'Samantha', // macOS/iOS high quality female
+      'Victoria', // macOS/iOS soft voice
+      'Moira',    // macOS/iOS Irish (often very pleasant/soft)
+      'Tessa',    // macOS/iOS South African (often clear)
+      'Google US English', // Chrome standard
+      'Microsoft Zira'    // Windows standard female
+    ]
+
+    const preferred = voices.find(v => 
+      preferredVoices.some(pv => v.name.includes(pv)) && v.lang.startsWith('en')
     )
-    if (preferred) utterance.voice = preferred
+    
+    // If we didn't find our specific list, try to find any female English voice
+    if (preferred) {
+      utterance.voice = preferred
+    } else {
+      const fallbackFemale = voices.find(v => 
+        v.lang.startsWith('en') && (v.name.toLowerCase().includes('female') || v.name.includes('Samantha') || v.name.includes('Karen'))
+      )
+      if (fallbackFemale) utterance.voice = fallbackFemale
+    }
 
     utterance.onstart = () => { setIsPlaying(true); setIsPaused(false) }
     utterance.onend = () => { setIsPlaying(false); setIsPaused(false) }
