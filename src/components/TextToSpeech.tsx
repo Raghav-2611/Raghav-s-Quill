@@ -7,11 +7,78 @@ interface TextToSpeechProps {
   title?: string
 }
 
-// bar heights (px) — gives an organic waveform silhouette
 const BAR_HEIGHTS = [
   10, 18, 28, 22, 34, 26, 38, 30, 42, 36, 44, 38, 40, 34, 46, 40, 44,
   36, 38, 30, 42, 34, 28, 22, 18, 14, 20, 16, 24, 18, 26, 20, 22, 16, 12,
 ]
+
+// Resolves only after the browser has populated its voice list.
+// On Chrome/Edge the list loads asynchronously; on Safari it's sync.
+function getVoicesReady(): Promise<SpeechSynthesisVoice[]> {
+  return new Promise((resolve) => {
+    const voices = window.speechSynthesis.getVoices()
+    if (voices.length > 0) return resolve(voices)
+    const onVoicesChanged = () => {
+      resolve(window.speechSynthesis.getVoices())
+      window.speechSynthesis.removeEventListener('voiceschanged', onVoicesChanged)
+    }
+    window.speechSynthesis.addEventListener('voiceschanged', onVoicesChanged)
+    // Bail-out: if event never fires (some mobile browsers), resolve after 1s
+    setTimeout(() => resolve(window.speechSynthesis.getVoices()), 1000)
+  })
+}
+
+// Scores a voice — higher = better.  We want a soft, natural English female.
+function scoreVoice(v: SpeechSynthesisVoice): number {
+  const name = v.name.toLowerCase()
+  const lang = v.lang.toLowerCase()
+
+  // Must be English
+  if (!lang.startsWith('en')) return -1
+
+  let score = 0
+
+  // ── Tier 1: best online/neural voices ──────────────────────────────────────
+  // Microsoft neural voices (Edge / Windows 11) — the warmest available
+  if (name.includes('aria')) score = 100   // en-US, bright & warm
+  if (name.includes('jenny')) score = 98    // en-US, conversational
+  if (name.includes('sonia')) score = 96    // en-GB, pleasant
+  if (name.includes('maisie')) score = 94    // en-GB, gentle
+  if (name.includes('libby')) score = 93    // en-GB, soft
+  if (name.includes('clara')) score = 92    // en-CA
+  if (name.includes('natasha')) score = 91    // en-AU
+
+  // Google neural (Chrome)
+  if (name.includes('google us english')) score = 90
+  if (name.includes('google uk english female')) score = 89
+
+  // ── Tier 2: high-quality built-in system voices ────────────────────────────
+  if (name === 'samantha') score = 85    // macOS/iOS default — clear & warm
+  if (name.includes('karen')) score = 84    // macOS en-AU
+  if (name.includes('serena')) score = 83    // macOS en-GB
+  if (name.includes('moira')) score = 82    // macOS en-IE
+  if (name.includes('tessa')) score = 81    // macOS en-ZA
+  if (name.includes('fiona')) score = 80    // macOS en-Scotland, slightly different
+
+  // Windows built-in female voices
+  if (name.includes('zira')) score = 78    // Windows 10 en-US
+  if (name.includes('hazel')) score = 76    // Windows en-GB
+
+  // Android / Chrome OS
+  if (name.includes('female')) score = Math.max(score, 60)
+  if (name.includes('woman')) score = Math.max(score, 60)
+
+  // ── Tier 3: any remaining English voice is better than silence ──────────────
+  if (score === 0) score = 10
+
+  // Prefer network voices (they're usually neural quality)
+  if (!v.localService) score += 5
+
+  // Prefer American or British English for broadest compatibility
+  if (lang === 'en-us' || lang === 'en-gb') score += 3
+
+  return score
+}
 
 export default function TextToSpeech({ text, title }: TextToSpeechProps) {
   const [isPlaying, setIsPlaying] = useState(false)
@@ -31,7 +98,7 @@ export default function TextToSpeech({ text, title }: TextToSpeechProps) {
     }
   }, [])
 
-  const speak = useCallback(() => {
+  const speak = useCallback(async () => {
     if (!supported) return
 
     if (isPaused) {
@@ -45,49 +112,22 @@ export default function TextToSpeech({ text, title }: TextToSpeechProps) {
 
     const fullText = title ? `${title}. ${text}` : text
     const utterance = new SpeechSynthesisUtterance(fullText)
-    // Slower rate and slightly lower pitch help electronic voices sound softer and more natural
-    utterance.rate = 0.85
-    utterance.pitch = 0.95
+
+    // ── Tuned for a soft, breathy, pleasant female voice ──────────────────────
+    utterance.rate = 0.82   // slightly slower — feels calm and measured
+    utterance.pitch = 1.08   // a touch above neutral — lighter, more feminine
     utterance.volume = 1.0
+    // ─────────────────────────────────────────────────────────────────────────
 
-    // Pick a pleasant voice if available
-    const voices = window.speechSynthesis.getVoices()
-    
-    // Target the highest quality, natively available female voice on each major platform
-    const preferredVoices = [
-      'Google US English',       // Best quality if using Chrome
-      'Google UK English Female',// Alternative Chrome high quality
-      'Samantha',                // Default macOS/iOS high-quality female
-      'Microsoft Zira',          // Default Windows 10/11 female
-      'Microsoft Aria Online',   // High-quality Edge female
-      'en-US-language'           // Android default fallback
-    ]
+    // Wait for voices to be ready, then pick the best-scoring one
+    const voices = await getVoicesReady()
+    const scored = voices
+      .map(v => ({ voice: v, score: scoreVoice(v) }))
+      .filter(x => x.score > 0)
+      .sort((a, b) => b.score - a.score)
 
-    let selectedVoice: SpeechSynthesisVoice | undefined = undefined
-
-    // 1. Try to find the first match in our priority list
-    for (const pref of preferredVoices) {
-      const match = voices.find(v => v.name.includes(pref) && v.lang.startsWith('en'))
-      if (match) {
-        selectedVoice = match
-        break
-      }
-    }
-
-    // 2. If no specific match, find *any* voice explicitly labelled "female" or "woman"
-    if (!selectedVoice) {
-      selectedVoice = voices.find(
-        (v) => v.lang.startsWith('en') && (v.name.toLowerCase().includes('female') || v.name.includes('Woman'))
-      )
-    }
-
-    // 3. Last resort: just grab the first English voice we can find (so it doesn't break/use a non-English voice)
-    if (!selectedVoice) {
-      selectedVoice = voices.find(v => v.lang.startsWith('en'))
-    }
-
-    if (selectedVoice) {
-      utterance.voice = selectedVoice
+    if (scored.length > 0) {
+      utterance.voice = scored[0].voice
     }
 
     utterance.onstart = () => { setIsPlaying(true); setIsPaused(false) }
